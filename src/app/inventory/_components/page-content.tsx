@@ -1,9 +1,7 @@
-// app/used-cars/[city]/page.tsx
 'use client';
 import { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-// import { useCars } from '@/hooks/useCars';
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'; // shadcn
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet'; // shadcn
 import { SlidersHorizontal } from 'lucide-react';
 import { useCars } from '@/hooks/use-cars';
 import FiltersSidebar from './filters';
@@ -39,7 +37,7 @@ export default function InventoryPageContent() {
         maxPrice: priceRange[1],
         verified: verifiedOnly || undefined,
         city: sp?.get("city") ?? "",           // optional extra param
-    }), [brand, fuel, year, transmission, owner, priceRange, verifiedOnly, page, sp?.get("city")]);
+    }), [brand, fuel, year, transmission, owner, priceRange, verifiedOnly, page, sp]);
 
     /** keep URL in sync so users can share & refresh */
     const pushState = () => {
@@ -52,9 +50,6 @@ export default function InventoryPageContent() {
         router.replace(url.pathname + '?' + url.searchParams.toString());
     };
 
-    /*------------------------------------------------------------------*/
-    /*   Fetch cars with React Query                                     */
-    /*------------------------------------------------------------------*/
     const { data, isLoading, isError } = useCars(queryParams);
 
     console.log("use cars data:", data);
@@ -94,28 +89,18 @@ export default function InventoryPageContent() {
     );
 
     return (
-        <div className="bg-gray-50 min-h-screen pt-32 px-4 sm:px-6 lg:px-8">
-            <header className="mb-6">
-                <h1 className="text-2xl font-bold">
-                    Used Cars in {(sp?.get("city") ?? '').replace(/-/g, ' ')}
-                    {`(₹${queryParams.minPrice}– ${queryParams.maxPrice} Lakh)`}
-                </h1>
-
-                {/* <p className="text-gray-600 mt-1">
-                    {(data?.total ?? data?.length ?? "###")} cars available
-                </p> */}
-            </header>
-
-            <div className="flex gap-6">
-                {/*  ❱❱ Mobile – slide‑in drawer */}
+        <div className="bg-gray-50 min-h-screen pt-32 px-4 sm:px-6 lg:px-8 mb-4 mt-8">
+            <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:hidden">
                     <Sheet>
                         <SheetTrigger className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium shadow-sm">
                             <SlidersHorizontal size={16} /> Filters
                         </SheetTrigger>
+                        <SheetTitle className='hidden'>Side Filter Bar - Mobile View</SheetTitle>
                         <SheetContent side="left" className="p-0">
                             {Filters}
                         </SheetContent>
+                        <SheetDescription className='hidden'>This is hidden description of Mobile Side Filter Bar</SheetDescription>
                     </Sheet>
                 </div>
 
@@ -123,7 +108,7 @@ export default function InventoryPageContent() {
                 <aside className="hidden md:block w-72 flex-shrink-0">{Filters}</aside>
 
                 {/*  ❱❱ Listing */}
-                <main className="flex-1">
+                <div className="flex-1">
                     {isLoading && <CarsSkeleton />}
                     {isError && <p className="text-red-500">Something went wrong.</p>}
                     {data && (
@@ -138,7 +123,7 @@ export default function InventoryPageContent() {
                             }}
                         />
                     )}
-                </main>
+                </div>
             </div>
         </div>
     );

@@ -77,7 +77,7 @@ export default function DetailForm() {
                 <div className='flex flex-col sm:flex-row w-full shadow-lg rounded-xl bg-green-400'>
                     <Card id='listing-car-detail' className="w-full outline-none border-none shadow-none relative">
                         <IoCloseCircleOutline
-                            className="absolute -top-1 -right-8 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800"
+                            className="absolute top-1 right-1 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800"
                             onClick={() => setShowDetailForm(false, "")} />
                         <CardHeader>
                             <div className="flex space-x-2">

@@ -4,11 +4,11 @@ import { MdPeopleAlt } from "react-icons/md";
 import { FaThList } from "react-icons/fa";
 import { FaRupeeSign } from "react-icons/fa";
 import { cn } from '@/lib/utils';
-import ListingForm from './forms';
+import SellCarVerification from './forms';
 
 const Sell = () => {
     return (
-        <div className='pt-40 sm:pt-24 md:pt-30'>
+        <div className='pt-28 sm:pt-30'>
             {/* First section with image */}
             <div className='relative'>
                 <div className='pb-16 bg-gradient-to-r from-[#c8dffa] from-10% via-[#cee3fb] via-20% to-white to-80%'>
@@ -28,7 +28,7 @@ const Sell = () => {
             </div>
 
             {/* Form section with smooth transition */}
-            <ListingForm />
+            <SellCarVerification />
 
             {/* How It Works Section */}
             <section className='py-8 mt-16'>

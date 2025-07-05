@@ -85,8 +85,8 @@ const Register: React.FC = () => {
         <div className='hidden sm:block flex-1 relative bg-white rounded-l-3xl'>
           <Image src={'/images/_reg_img.png'} fill alt='login image' className='object-cover rounded-l-xl shadow-lg' />
         </div>
-        <Card className="w-full max-w-sm ml-auto mr-auto sm:mr-0 outline-none border-none rounded-l-none shadow-none relative">
-          <IoCloseCircleOutline className="absolute -top-1 -right-8 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800" onClick={close} />
+          <Card id='login' className="w-full max-w-sm ml-auto mr-auto sm:mr-0 outline-none border-none shadow-none relative rounded-r-xl rounded-l-xl sm:rounded-l-none">
+          <IoCloseCircleOutline className="absolute top-1 right-1 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800" onClick={close} />
           <CardHeader>
             <CardTitle>Create your account</CardTitle>
             <CardDescription className='hidden sm:block'>

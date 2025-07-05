@@ -83,12 +83,12 @@ const Login: React.FC = () => {
   return (
     <div className='fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4'>
       <div className='w-full max-w-3xl fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 '>
-        <div className='flex flex-col sm:flex-row w-full shadow-lg rounded-xl'>
-          <div className='hidden sm:block'>
-            <Image src={'/images/login_img.png'} width={500} height={500} alt='login image' className='rounded-l-xl border-l shadow-lg' />
+        <div className='flex flex-col sm:flex-row w-full- shadow-lg rounded-xl'>
+          <div className='rounded-l-xl overflow-hidden hidden sm:block bg-white'>
+            <Image src={'/images/login_img.png'} width={500} height={500} alt='login image' className='' />
           </div>
-          <Card id='login' className="w-full max-w-sm ml-auto mr-auto sm:mr-0 outline-none border-none shadow-none relative rounded-none rounded-r-xl">
-            <IoCloseCircleOutline className="absolute -top-1 -right-8 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800" onClick={close} />
+          <Card id='login' className="w-full max-w-sm ml-auto mr-auto sm:mr-0 outline-none border-none shadow-none relative rounded-r-xl rounded-l-xl sm:rounded-l-none">
+            <IoCloseCircleOutline className="absolute top-1 right-1 text-neutral-400 text-2xl hover:cursor-pointer hover:text-neutral-800" onClick={close} />
             <CardHeader>
               <CardTitle>Login to your account</CardTitle>
               <CardDescription className='hidden sm:block'>
