@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
+import { CarDto } from "@/hooks/use-cars";
 import { useListingForms } from "@/hooks/use-listing-forms";
 import { cn } from "@/lib/utils";
 import { Label } from "@radix-ui/react-label";
 import axios from "axios";
-import { Dispatch, FormEvent, SetStateAction, startTransition, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, startTransition, useEffect, useState } from "react";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { toast } from "sonner";
 
@@ -30,7 +31,7 @@ interface ISellForm {
     description: string;
 }
 
-export default function DetailForm() {
+export default function DetailForm({ listing }: { listing?: CarDto }) {
     const token = useAuth(state => state.token);
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState<ISellForm>({
@@ -46,6 +47,19 @@ export default function DetailForm() {
     const setShowDetailForm = useListingForms(state => state.setShowForm);
     const setShowImageUpload = useListingForms(state => state.setShowImageUpload);
 
+    useEffect(() => {
+        if (listing) {
+            setFormData({
+                vehicle_type: listing.vehicle_type,
+                kilometers_driven: listing.kilometers_driven,
+                price: listing.price,
+                city: listing.city,
+                seller_phone: listing.seller_phone,
+                description: listing.description || "",
+            });
+        }
+    }, [listing]);
+
     if (!showDetailForm) return null;
 
     const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -53,12 +67,22 @@ export default function DetailForm() {
         startTransition(async () => {
             console.log("formData:", formData);
             try {
-                const res = await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/listings`,
-                    { ...formData, reg_no },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                toast.success("Listing Successfull");
+                let res;
+                if (listing) {
+                    res = await axios.put(
+                        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/listings/${listing.id}`,
+                        formData,
+                        { headers: { Authorization: `Bearer ${token?.access_token}` } }
+                    );
+                    toast.success("Listing updated successfully");
+                } else {
+                    res = await axios.post(
+                        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/listings`,
+                        { ...formData, reg_no },
+                        { headers: { Authorization: `Bearer ${token?.access_token}` } }
+                    );
+                    toast.success("Listing created successfully");
+                }
                 console.log("listing res:", res);
                 setTimeout(() => {
                     setShowImageUpload(true, res.data.id);
@@ -93,9 +117,9 @@ export default function DetailForm() {
                         </CardHeader>
                         <CardContent>
                             <form id="sell-car-detail" onSubmit={onFormSubmit}>
-                                <CarDetail currentStep={currentStep} setFormData={setFormData} />
-                                <PriceNFeature currentStep={currentStep} setFormData={setFormData} />
-                                <Contacts currentStep={currentStep} setFormData={setFormData} />
+                                <CarDetail currentStep={currentStep} formData={formData} setFormData={setFormData} />
+                                <PriceNFeature currentStep={currentStep} formData={formData} setFormData={setFormData} />
+                                <Contacts currentStep={currentStep} formData={formData} setFormData={setFormData} />
                             </form>
                         </CardContent>
                         <CardFooter className="flex-col gap-2">
@@ -106,7 +130,7 @@ export default function DetailForm() {
                             }
                             {currentStep === steps.length - 1 &&
                                 <Button type="submit" form="sell-car-detail" className="w-full">
-                                    Submit
+                                    {listing ? 'Update' : 'Submit'}
                                 </Button>
                             }
                         </CardFooter>
@@ -117,13 +141,13 @@ export default function DetailForm() {
     );
 }
 
-const CarDetail = ({ currentStep, setFormData }: { currentStep: number, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
+const CarDetail = ({ currentStep, formData, setFormData }: { currentStep: number, formData: ISellForm, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
     if (steps[currentStep] !== "Car Details") return null;
     return (
         <div className="flex flex-col gap-6">
             <div className="gap-2 sm:flex sm:space-x-4">
                 <Label htmlFor="vtype">Vehicle Type:</Label>
-                <RadioGroup id="vtype" defaultValue="car" className="flex"
+                <RadioGroup id="vtype" value={formData.vehicle_type} className="flex"
                     onValueChange={(val) => setFormData(prev => ({ ...prev, vehicle_type: val }))}
                 >
                     <div className="flex items-center gap-3">
@@ -142,7 +166,8 @@ const CarDetail = ({ currentStep, setFormData }: { currentStep: number, setFormD
                     <Label htmlFor="km-driven" className="w-32">Kilometers Driven</Label>
                 </div>
                 <Input id="km-driven"
-                    onChange={(e) => setFormData(prev => ({ ...prev, kilometers_driven: parseInt(e.target.value) }))}
+                    value={formData.kilometers_driven}
+                    onChange={(e) => setFormData(prev => ({ ...prev, kilometers_driven: parseInt(e.target.value) || 0 }))}
                     required
                     placeholder="How many kilometers have you driven?"
                 />
@@ -151,7 +176,7 @@ const CarDetail = ({ currentStep, setFormData }: { currentStep: number, setFormD
     )
 }
 
-const PriceNFeature = ({ currentStep, setFormData }: { currentStep: number, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
+const PriceNFeature = ({ currentStep, formData, setFormData }: { currentStep: number, formData: ISellForm, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
     if (steps[currentStep] !== "Price & Features") return null;
     return (
         <div className="flex flex-col gap-6">
@@ -160,7 +185,8 @@ const PriceNFeature = ({ currentStep, setFormData }: { currentStep: number, setF
                     <Label htmlFor="price">Price</Label>
                 </div>
                 <Input id="price"
-                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseInt(e.target.value) }))}
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
                     required
                     placeholder="Please enter a selling price."
                 />
@@ -171,6 +197,7 @@ const PriceNFeature = ({ currentStep, setFormData }: { currentStep: number, setF
                     <Label htmlFor="desc">Description</Label>
                 </div>
                 <Textarea id="desc"
+                    value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Please give a description about the vehicle."
                 />
@@ -179,7 +206,7 @@ const PriceNFeature = ({ currentStep, setFormData }: { currentStep: number, setF
     )
 }
 
-const Contacts = ({ currentStep, setFormData }: { currentStep: number, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
+const Contacts = ({ currentStep, formData, setFormData }: { currentStep: number, formData: ISellForm, setFormData: Dispatch<SetStateAction<ISellForm>> }) => {
     if (steps[currentStep] !== "Contact Information") return null;
     return (
         <div className="flex flex-col gap-6">
@@ -188,6 +215,7 @@ const Contacts = ({ currentStep, setFormData }: { currentStep: number, setFormDa
                     <Label htmlFor="city">City</Label>
                 </div>
                 <Input id="city"
+                    value={formData.city}
                     onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                     required
                     placeholder="Please enter your city."
@@ -198,6 +226,7 @@ const Contacts = ({ currentStep, setFormData }: { currentStep: number, setFormDa
                     <Label htmlFor="phone">Phone</Label>
                 </div>
                 <Input id="phone"
+                    value={formData.seller_phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, seller_phone: e.target.value }))}
                     required
                     placeholder="Please enter your contact number."

@@ -6,6 +6,7 @@ import { VscAccount } from "react-icons/vsc";
 import { IoMdLogOut } from "react-icons/io";
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const LoginBtn = () => {
     const setShowLogin = useLoginPopup(state => state.setShow);
@@ -14,10 +15,17 @@ const LoginBtn = () => {
 
     if (token) {
         return (
-            <Button variant={'ghost'} className='hover:cursor-pointer flex items-center space-x-2' onClick={() => setToken()}>
-                <IoMdLogOut className='text-lg' />
-                Logout
-            </Button>
+            <div className="flex items-center space-x-4">
+                <Link href="/my-listings">
+                    <Button variant={'ghost'} className='hover:cursor-pointer flex items-center space-x-2'>
+                        My Listings
+                    </Button>
+                </Link>
+                <Button variant={'ghost'} className='hover:cursor-pointer flex items-center space-x-2' onClick={() => setToken()}>
+                    <IoMdLogOut className='text-lg' />
+                    Logout
+                </Button>
+            </div>
         )
     }
 

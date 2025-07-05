@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import axios, { AxiosError } from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/use-auth';
 import { useLoginPopup } from '@/hooks/use-login-popup';
@@ -12,6 +12,9 @@ import PhotoUploads from './photo-upload';
 import { Button } from '@/components/ui/button';
 import ConfirmRcDetail from './confirm-rc-details';
 import { useConfirmRCDetail } from '@/hooks/use-confirm-rc-detail';
+import { useSearchParams } from 'next/navigation';
+import { useCarDetails } from '@/hooks/use-car-details';
+import { useListingForms } from '@/hooks/use-listing-forms';
 
 const SellCarVerification = () => {
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
@@ -19,6 +22,17 @@ const SellCarVerification = () => {
   const token = useAuth(state => state.token);
   const showLogin = useLoginPopup(state => state.setShow);
   const setShowConfirmDetail = useConfirmRCDetail(state => state.setShow);
+  const searchParams = useSearchParams();
+  const listingId = searchParams.get('id');
+  const { data: carDetails } = useCarDetails(listingId!);
+  const setShowForm = useListingForms(state => state.setShowForm);
+
+  useEffect(() => {
+    if (carDetails) {
+      setShowForm(true, carDetails.reg_no);
+    }
+  }, [carDetails, setShowForm]);
+
 
   const verifyRegNo = async () => {
     if (!regNum) {
@@ -35,7 +49,7 @@ const SellCarVerification = () => {
     try {
       const result = await axios.post(
         `${baseUrl}/vehicle-verify`,
-        { reg_no: regNum }, { headers: { Authorization: `Bearer ${token}` } }
+        { reg_no: regNum }, { headers: { Authorization: `Bearer ${token?.access_token}` } }
       );
 
       console.log("verify result: ", result);
@@ -56,6 +70,15 @@ const SellCarVerification = () => {
         toast.error("Bad Request! Please try again.");
       else if (e.response && e.response?.status >= 500) toast.error("Something Went Wrong!");
     }
+  }
+
+  if (listingId) {
+    return (
+      <section className='relative z-10 w-full'>
+        <DetailForm listing={carDetails} />
+        <PhotoUploads />
+      </section>
+    )
   }
 
   return (
